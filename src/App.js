@@ -1,33 +1,62 @@
-import React, { useState } from "react";
+import React from "react";
 import TodoList from "./TodoList";
+import CompletedTodoList from "./CompletedTodoList";
 import AddTodo from "./AddTodo";
+import {
+  addTodo,
+  completeTodo,
+  deleteTodo,
+  undoCompleteTodo,
+} from "./actions/todoActions";
+import { connect } from "react-redux";
 
-const INITIAL_TODOS = [
-  { id: 1, content: "Study Redux" },
-  { id: 2, content: "Clean my room" },
-];
-
-function App() {
-  const [todos, setTodos] = useState(INITIAL_TODOS);
-
-  const completeTodo = (id) => {
-    const filteredTodos = todos.filter((todo) => todo.id !== id);
-    setTodos(filteredTodos);
-  };
-
-  const addNewTodo = (todoContent) => {
-    const newTodo = { id: todos.length + 1, content: todoContent };
-    const updatedTodoList = [...todos, newTodo];
-    setTodos(updatedTodoList);
-  };
-
+function App({
+  todos,
+  completedTodos,
+  addTodo,
+  deleteTodo,
+  completeTodo,
+  undoCompleteTodo,
+}) {
   return (
     <div className="App container">
       <h1 className="center blue-text">My Todo List</h1>
-      <AddTodo addNewTodo={addNewTodo} />
-      <TodoList todos={todos} completeTodo={completeTodo} />
+      <AddTodo addNewTodo={addTodo} />
+      <TodoList
+        todos={todos}
+        completeTodo={completeTodo}
+        deleteTodo={deleteTodo}
+      />
+      <div className="divider"></div>
+      <h5 className="center blue-text text-lighten-4">Completed Todos:</h5>
+      <CompletedTodoList
+        todos={completedTodos}
+        undoCompleteTodo={undoCompleteTodo}
+      />
     </div>
   );
 }
 
-export default App;
+function mapStateToProps(state) {
+  const { todos, completedTodos } = state;
+  return { todos, completedTodos };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    addTodo: (todoContent) => {
+      dispatch(addTodo(todoContent));
+    },
+    deleteTodo: (id) => {
+      dispatch(deleteTodo(id));
+    },
+    completeTodo: (id) => {
+      dispatch(completeTodo(id));
+    },
+    undoCompleteTodo: (id) => {
+      dispatch(undoCompleteTodo(id));
+    },
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
